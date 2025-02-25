@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Инкремент</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+        input, button { font-size: 18px; padding: 10px; margin: 5px; }
+        #result { font-size: 24px; margin-top: 20px; color: green; }
+    </style>
+</head>
+<body>
+
+    <h2>Запуск инкремента через WebSocket</h2>
+    <input type="number" id="numberInput" placeholder="Введите число">
+    <button onclick="startTask()">Отправить</button>
+    <button onclick="stopTask()">Стоп</button>
+    
+    <div id="result">Результат: -</div>
+
+    <script src="static/js/ws.js"></script>
+
+</body>
+</html>

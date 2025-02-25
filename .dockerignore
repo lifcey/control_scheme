@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+build/
+dist/
+docs/
+docker/nginx/
+tkzf_app/results/
+build_n_run.bat
+README.txt
+forntend/
