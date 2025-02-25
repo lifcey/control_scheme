@@ -1,6 +1,6 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 import asyncio
-
+#Г
 app = FastAPI()
 
 class IncrementTask:
