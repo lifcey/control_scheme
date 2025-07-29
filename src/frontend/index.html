@@ -17,8 +17,13 @@
     <button onclick="startTask()">Отправить</button>
     <button onclick="stopTask()">Стоп</button>
     
+    <!-- <button onclick="updateTask()">Передать число серверу</button> -->
+    
     <div id="result">Результат: -</div>
-
+    <h2>Endpoints</h2>
+    <button onclick="getStatus()">[GET] Получить состояние Task</button>
+    <button onclick="getNumber()">[GET] Получить число из Task</button>
+    <button onclick="updateNumber()">[PUT] Изменить число в Task</button>
     <script src="static/js/ws.js"></script>
 
 </body>

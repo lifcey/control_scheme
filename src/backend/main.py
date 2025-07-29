@@ -1,7 +1,18 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 import asyncio
 
 app = FastAPI()
+
+# Добавление разрешённых источников
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://127.0.0.1:5500"],  
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class IncrementTask:
     def __init__(self):
@@ -39,3 +50,20 @@ async def websocket_endpoint(websocket: WebSocket):
                 break
     except WebSocketDisconnect:
         task.stop()
+
+@app.get("/getStatus")
+async def get_status():
+    return {"status": task.running}
+
+@app.get("/getNumber")
+async def getNumber():
+    return {"number": task.number}
+
+
+class NumberInput(BaseModel):
+    number: int
+
+@app.put("/updateNumber")
+async def updateNumber(data: NumberInput):
+    task.number = data.number
+    return {"message": "Число обновлено", "number": task.number}
