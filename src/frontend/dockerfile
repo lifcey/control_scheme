@@ -1,0 +1,24 @@
+FROM nginx:1.25-alpine
+
+# Рабочая директория nginx
+WORKDIR /usr/share/nginx/html
+
+# Удалим дефолтные страницы nginx
+RUN rm -rf ./*
+
+# Копируем статику и даем права на чтение
+COPY index.html .
+COPY static ./static
+COPY config.template.js .
+
+# Копируем entrypoint
+COPY entrypoint.sh /entrypoint.sh
+
+# Права: nginx сможет читать все файлы
+RUN chmod -R 755 /usr/share/nginx/html && \
+    chmod +x /entrypoint.sh
+
+# Задаём entrypoint
+ENTRYPOINT ["/entrypoint.sh"]
+
+CMD ["nginx", "-g", "daemon off;"]

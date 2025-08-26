@@ -1,5 +1,9 @@
 let ws;
+const API_URL = window._env_.API_URL;
+const WS_URL = window._env_.WS_URL
+console.log("Backend API:", API_URL);
 
+// ====== WebSocket ======
 function startTask() {
     let input = document.getElementById("numberInput").value;
     if (input.trim() === "") {
@@ -7,14 +11,12 @@ function startTask() {
         return;
     }
 
-    // Alert при уже активном WebSocket
     if (ws && ws.readyState !== WebSocket.CLOSED) {
         alert("У вас уже есть активный WebSocket!");
         return;
     }
-
-    ws = new WebSocket("ws://127.0.0.1:8881/ws");
-
+    console.log("ws API:", WS_URL);
+    ws = new WebSocket(WS_URL);
     ws.onopen = () => {
         console.log("WebSocket подключен");
         ws.send(JSON.stringify({ action: "start", number: Number(input) }));
@@ -35,8 +37,10 @@ function stopTask() {
         document.getElementById("result").innerText = "Результат: - (Остановлено)";
     }
 }
+
+// ====== REST (старые endpoints) ======
 function getStatus() {
-    fetch("http://127.0.0.1:8881/getStatus")
+    fetch(API_URL + "/getStatus")
         .then(response => response.json())
         .then(data => {
             alert("Ответ от сервера: " + data.status);
@@ -46,7 +50,7 @@ function getStatus() {
 }
 
 function getNumber() {
-    fetch("http://127.0.0.1:8881/getNumber")
+    fetch(API_URL + "/getNumber")
         .then(response => response.json())
         .then(data => {
             alert("Ответ от сервера: " + data.number);
@@ -55,21 +59,39 @@ function getNumber() {
         .catch(error => console.error("Ошибка:", error));
 }
 
-function updateNumber(){
-    if(ws){
-        const number = document.getElementById("numberInput").value;
-        fetch("http://127.0.0.1:8881/updateNumber", {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ number: Number(number) })
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert("Ответ от сервера: " + data.message);
-            console.log("Ответ от сервера:", data.message);
-        })
-        .catch(error => console.error("Ошибка:", error));
-    }
+// ====== CRUD для БД ======
+async function createItem() {
+    const name = document.getElementById('itemName').value;
+    const res = await fetch(`${API_URL}/items/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name })
+    });
+    const data = await res.json();
+    document.getElementById('dbResult').innerText = JSON.stringify(data);
+}
+
+async function getItems() {
+    const res = await fetch(`${API_URL}/items/`);
+    const data = await res.json();
+    document.getElementById('dbResult').innerText = JSON.stringify(data);
+}
+
+async function updateItem() {
+    const id = document.getElementById('itemId').value;
+    const name = document.getElementById('itemName').value;
+    const res = await fetch(`${API_URL}/items/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name })
+    });
+    const data = await res.json();
+    document.getElementById('dbResult').innerText = JSON.stringify(data);
+}
+
+async function deleteItem() {
+    const id = document.getElementById('itemId').value;
+    const res = await fetch(`${API_URL}/items/${id}`, { method: 'DELETE' });
+    const data = await res.json();
+    document.getElementById('dbResult').innerText = JSON.stringify(data);
 }

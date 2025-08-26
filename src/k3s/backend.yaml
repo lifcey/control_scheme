@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      initContainers:
+        - name: wait-for-db
+          image: postgres:15
+          command:
+            - sh
+            - -c
+            - until pg_isready -h db-service -U postgres -d control_scheme_db; do echo "Waiting for DB..."; sleep 3; done
+          env:
+            - name: PGPASSWORD
+              value: postgres
+      containers:
+        - name: backend
+          image: src-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8881
+          env:
+            - name: DATABASE_URL
+              value: "postgresql://postgres:postgres@db-service:5432/control_scheme_db"
+            - name: ALLOW_ORIGINS
+              value: "http://localhost:30550"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8881
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8881
+            initialDelaySeconds: 15
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector:
+    app: backend
+  ports:
+    - protocol: TCP
+      port: 8881
+      targetPort: 8881
+      nodePort: 30881
+  type: NodePort
+
+
